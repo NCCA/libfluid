@@ -15,10 +15,10 @@ QMAKE_CXXFLAGS += -std=c++11 -fPIC
 HEADERS+=cudasrc/*.cuh
 
 # Directories
-INCLUDEPATH += ${CUDA_SAMPLES_PATH}/common/inc ${PWD}/../common/include include ${CUDA_PATH}/include ${CUDA_PATH}/include/cuda 
+INCLUDEPATH += ${CUDA_SAMPLES}/common/inc ${PWD}/../common/include include ${CUDA_PATH}/include ${CUDA_PATH}/include/cuda 
 
 # Link with the following libraries
-linux:LIBS += -L/usr/lib/x86_64-linux-gnu -L${CUDA_PATH}/lib64 -L${CUDA_PATH}/lib64/nvidia -lcudadevrt -lcuda -lcudart -lcurand -lcublas -lcublas_device
+linux:LIBS += -L/usr/lib/x86_64-linux-gnu -L${CUDA_PATH}/lib64 -L${CUDA_PATH}/lib64/nvidia -L/usr/lib64/nvidia -lcudadevrt -lcuda -lcudart -lcurand -lcublas -lcublas_device
 
 # LIBS += -L/usr/lib/x86_64-linux-gnu -lcuda -lcudart -lcudadevrt -lcurand
 macx:LIBS = -L/usr/local/cuda/lib/ -lcudadevrt -lcuda -lcudart -lcurand
@@ -40,8 +40,8 @@ CUDA_SOURCES += cudasrc/*.cu
 CUDA_INC += $$join(INCLUDEPATH,' -I','-I',' ')
  
 # nvcc flags ("-Xptxas -v" option is always useful, "-D_DEBUG" for tons of debug info)
-NVCC_DEBUG_FLAGS =
-#NVCC_DEBUG_FLAGS += -D_DEBUG -g -G 
+#NVCC_DEBUG_FLAGS =
+NVCC_DEBUG_FLAGS += -D_DEBUG -g -G  -DTHRUST_DEBUG
 #NVCC_DEBUG_FLAGS += -Xptxas -v
 # New added by Jon
 GENCODE=$$system(../findCudaArch.sh)

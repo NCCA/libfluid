@@ -11,7 +11,7 @@ OBJECTS_DIR = obj
 
 QMAKE_CXXFLAGS += -std=c++14 -Wall -Wextra -pedantic
 macx:CONFIG -= app_bundle
-linux:LIBS += -L${CUDA_PATH}/lib64 -L${CUDA_PATH}/lib64/nvidia -L$$LIB_INSTALL_DIR -L/usr/lib/x86_64-linux-gnu -lfluid -lcuda -lcudart -lcudadevrt -lcurand
+linux:LIBS += -L${CUDA_PATH}/lib64 -L${CUDA_PATH}/lib64/nvidia -L$$LIB_INSTALL_DIR -L/usr/lib64/nvidia -L/usr/lib/x86_64-linux-gnu -lfluid -lcuda -lcudart -lcudadevrt -lcurand
 QMAKE_RPATHDIR += ../lib
 message($$QMAKE_RPATHDIR)
 macx:LIBS += -L/usr/local/cuda/lib/ -lcudadevrt -lcuda -lcudart -lcurand  -L../lib -lfluid
