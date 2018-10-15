@@ -4,14 +4,19 @@ TARGET=$$BIN_INSTALL_DIR/test
 
 SOURCES += src/main.cpp src/myfluidsystem.cpp
 
-# INCLUDEPATH += $${PWD}/../common/include $$INC_INSTALL_DIR ${CUDA_PATH}/include ${CUDA_PATH}/include/cuda ${CUDA_PATH}/samples/common/inc 
-INCLUDEPATH += /usr/include/cuda
 INCLUDEPATH += $$INC_INSTALL_DIR
 OBJECTS_DIR = obj
 
-QMAKE_CXXFLAGS += -std=c++14 -Wall -Wextra -pedantic
+# Set the version of g++ to be compatible with CUDA
+QMAKE_CXX = $$(HOST_COMPILER)
+
+# This may or may not be necessary for mac compilation
 macx:CONFIG -= app_bundle
-linux:LIBS += -L${CUDA_PATH}/lib64 -L${CUDA_PATH}/lib64/nvidia -L$$LIB_INSTALL_DIR -L/usr/lib64/nvidia -L/usr/lib/x86_64-linux-gnu -lfluid -lcuda -lcudart -lcudadevrt -lcurand
-QMAKE_RPATHDIR += ../lib
+
+# Compilation now depends entirely on pkg-config
+LIBS += $$system(pkg-config --silence-errors --libs cuda-8.0 cudart-8.0 curand-8.0 cublas-8.0) -lcublas_device -L$$LIB_INSTALL_DIR -lfluid
+
+QMAKE_CXXFLAGS += -std=c++11 -Wall -Wextra -pedantic $$system(pkg-config --silence-errors --cflags cuda-8.0 cudart-8.0 curand-8.0 cublas-8.0)
+
+QMAKE_RPATHDIR += $$LIB_INSTALL_DIR
 message($$QMAKE_RPATHDIR)
-macx:LIBS += -L/usr/local/cuda/lib/ -lcudadevrt -lcuda -lcudart -lcurand  -L../lib -lfluid
