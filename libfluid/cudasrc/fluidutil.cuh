@@ -7,7 +7,6 @@
 #include <cuda_runtime.h>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
-#include <device_functions.h>
 
 // For thrust routines (e.g. stl-like operators and algorithms on vectors)
 #include <thrust/host_vector.h>

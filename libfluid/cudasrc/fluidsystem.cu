@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
-#include <device_functions.h>
+
 #include <thrust/device_vector.h>
 #include "fluidsystem.h"
 #include "hash.cuh"

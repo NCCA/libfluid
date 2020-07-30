@@ -5,7 +5,6 @@
 #include <cuda_runtime.h>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
-#include <device_functions.h>
 #include "helper_math.h"
 #include <cublas_v2.h>
 

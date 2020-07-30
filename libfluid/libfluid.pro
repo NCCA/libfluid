@@ -16,17 +16,17 @@ HEADERS+=cudasrc/*.cuh
 
 # Directories
 INCLUDEPATH += ${CUDA_SAMPLES}/common/inc ${PWD}/../common/include 
-QMAKE_CXXFLAGS += $$system(pkg-config --silence-errors --cflags cuda-8.0 cudart-8.0 curand-8.0 cublas-8.0)
+QMAKE_CXXFLAGS += $$system(pkg-config --silence-errors --cflags cuda cudart curand cublas)
 
 # Link with the following libraries
-LIBS += $$system(pkg-config --silence-errors --libs cuda-8.0 cudart-8.0 curand-8.0 cublas-8.0) -lcublas_device -lcudadevrt
+LIBS += $$system(pkg-config --silence-errors --libs cuda cudart curand cublas) -lcublas_device -lcudadevrt
 
 # Use the following path for nvcc created object files
 CUDA_OBJECTS_DIR = cudaobj
  
 # CUDA_DIR - the directory of cuda such that CUDA\<version-number\ contains the bin, lib, src and include folders
 # Set this environment variable yourself.
-CUDA_DIR=$$system(pkg-config --silence-errors --variable=cudaroot cuda-8.0)
+CUDA_DIR=$$system(pkg-config --silence-errors --variable=cudaroot cuda)
 isEmpty(CUDA_DIR) {
     message(CUDA_DIR not set - set this to the base directory of your local CUDA install (on the labs this should be /usr))
 }
@@ -43,7 +43,7 @@ NVCC_DEBUG_FLAGS =
 #NVCC_DEBUG_FLAGS += -Xptxas -v
 # New added by Jon - determines the best current cuda architecture of your system
 GENCODE=$$system(../findCudaArch.sh)
-NVCCFLAGS =  -ccbin $$(HOST_COMPILER) -I../src/	-m64 $$NVCC_DEBUG_FLAGS $$GENCODE --compiler-options -fno-strict-aliasing --compiler-options -fPIC -use_fast_math --std=c++11
+NVCCFLAGS =  -ccbin $$(HOST_COMPILER) -I../include -m64 $$NVCC_DEBUG_FLAGS $$GENCODE --compiler-options -fno-strict-aliasing --compiler-options -fPIC -use_fast_math --std=c++11
 #message($$NVCCFLAGS)
 # Define the path and binary for nvcc
 NVCCBIN = $$CUDA_DIR/bin/nvcc

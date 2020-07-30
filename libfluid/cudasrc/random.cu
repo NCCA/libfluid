@@ -91,7 +91,7 @@ int randSphereCoords(float *&devData, const size_t n)
     }
 
     // Wait for CUDA to finish
-    cudaThreadSynchronize();
+    cudaDeviceSynchronize();
 
     return EXIT_SUCCESS;
 }
