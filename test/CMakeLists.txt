@@ -5,10 +5,6 @@ project(test)
 
 set(CMAKE_CXX_STANDARD 11)
 
-find_library(LIBFLUID fluid HINT "../lib")
-
-set(CMAKE_VERBOSE_MAKEFILE ON)
-
 include_directories(../common/include ../libfluid/include)
 
 # build the executable
@@ -19,5 +15,5 @@ add_executable(
     src/myfluidsystem.h
 )
 
-target_link_libraries(test ${LIBFLUID})
+target_link_libraries(test -L${CMAKE_LIBRARY_OUTPUT_DIRECTORY} -lfluid)
 
