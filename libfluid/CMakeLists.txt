@@ -1,32 +1,40 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
-# Name of the project with Language
-project(libfluid)
+project(cmake_and_cuda LANGUAGES CXX CUDA)
 
-# find the cuda 10.1 package, currently required for building purposes
-find_package(CUDA 10 REQUIRED)
-
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -rdc=true -ccbin $ENV{CMAKE_CUDA_HOST_COMPILER} --compiler-options -fno-strict-aliasing --compiler-options -fPIC -use_fast_math  -gencode arch=compute_75,code=sm_75" )
+#include(CTest)
 
 include_directories(include ../common/include $ENV{CUDA_SAMPLES_PATH}/Common)
 
-# build a library
-cuda_add_library(fluid 
-            cudasrc/fluidintegrator.cu
-            cudasrc/fluidintegrator.cuh
-            cudasrc/fluidkernel.cu
-            cudasrc/fluidkernel.cuh
-            cudasrc/fluidparams.cu
-            cudasrc/fluidparams.cuh
-            cudasrc/fluidphysics.cu
-            cudasrc/fluidphysics.cuh
-            cudasrc/fluidsystem.cu
-            cudasrc/fluidutil.cu
-            cudasrc/fluidutil.cuh
-            cudasrc/hash.cu
-            cudasrc/hash.cuh
-            cudasrc/random.cu
-            cudasrc/random.cuh
-            include/fluidsystem.h
-            SHARED
-            )
+add_library(fluid SHARED
+cudasrc/fluidintegrator.cu
+cudasrc/fluidintegrator.cuh
+cudasrc/fluidkernel.cu
+cudasrc/fluidkernel.cuh
+cudasrc/fluidparams.cu
+cudasrc/fluidparams.cuh
+cudasrc/fluidphysics.cu
+cudasrc/fluidphysics.cuh
+cudasrc/fluidsystem.cu
+cudasrc/fluidutil.cu
+cudasrc/fluidutil.cuh
+cudasrc/hash.cu
+cudasrc/hash.cuh
+cudasrc/random.cu
+cudasrc/random.cuh
+include/fluidsystem.h
+)
+
+# Request that particles be built with -std=c++11
+# As this is a public compile feature anything that links to particles
+# will also build with -std=c++11
+target_compile_features(fluid PUBLIC cxx_std_11)
+
+# We need to explicitly state that we need all CUDA files in the particle
+# library to be built with -dc as the member functions could be called by
+# other libraries and executables
+set_target_properties(fluid PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+# Link in CURAND
+find_library(LIBCURAND curand)
+target_link_libraries(fluid ${LIBCURAND})
