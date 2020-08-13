@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(cmake_and_cuda LANGUAGES CXX CUDA)
 
-#include(CTest)
-
 include_directories(include ../common/include $ENV{CUDA_SAMPLES_PATH}/Common)
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 add_library(fluid SHARED
 cudasrc/fluidintegrator.cu
@@ -38,3 +38,19 @@ set_target_properties(fluid PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 # Link in CURAND
 find_library(LIBCURAND curand)
 target_link_libraries(fluid ${LIBCURAND})
+
+
+#target_compile_options(fluid PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-m64 -gencode arch=compute_75,code=sm_75>)
+
+set_property(TARGET fluid PROPERTY CUDA_ARCHITECTURES 75)
+
+#target_compile_options(fluid PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: -m64 --std=c++11>)
+#target_compile_options(fluid PRIVATE "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-gencode arch=compute_75,code=sm_75>")
+#target_compile_options(fluid PRIVATE "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-gencode arch=compute_75,code=compute_75>")
+#target_link_options(fluid PRIVATE $<DEVICE_LINK:-arch=sm_75>)
+#add_link_options($<DEVICE_LINK:-arch=sm_75>)
+
+#target_link_options(fluid PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: -m64 --std=c++11>)
+#target_link_options(fluid PRIVATE "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-gencode arch=compute_75,code=sm_75>")
+#target_link_options(fluid PRIVATE "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-gencode arch=compute_75,code=compute_75>")
+
