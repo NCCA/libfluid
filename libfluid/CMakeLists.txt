@@ -35,14 +35,32 @@ target_compile_features(fluid PUBLIC cxx_std_11)
 # other libraries and executables
 set_target_properties(fluid PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-# Link in CURAND
+# Set the default CURAND LIB path (this will change depending on the NCCA lab build)
+set(CURAND_LIB_PATH_DEFAULT /usr/local/cuda-9.0/lib64)
+
+# Check if an alternative CURAND path has been set in the environment variable
+IF(DEFINED ENV{CURAND_LIB_PATH})
+ # In this case use the environment variable
+ MESSAGE(STATUS "CURAND_LIB_PATH defined as $ENV{CURAND_LIB_PATH}. Using this path.")
+ SET(CURAND_LIB_PATH $ENV{CURAND_LIB_PATH})
+ELSE()
+ # Otherwise use the default path
+ MESSAGE(STATUS "CURAND_LIB_PATH not defined. Using NCCA lab build default ${CURAND_LIB_PATH_DEFAULT}.")
+ SET(CURAND_LIB_PATH ${CURAND_LIB_PATH_DEFAULT})
+ENDIF()
+
+# Append this search path to the CMAKE prefix path
+list(APPEND CMAKE_PREFIX_PATH ${CURAND_LIB_PATH})
+
+# Now find the library to help with the linking
 find_library(LIBCURAND curand)
+
+# Link in CURAND
 target_link_libraries(fluid ${LIBCURAND})
 
 
 #target_compile_options(fluid PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-m64 -gencode arch=compute_75,code=sm_75>)
-
-set_property(TARGET fluid PROPERTY CUDA_ARCHITECTURES 75)
+# set_property(TARGET fluid PROPERTY CUDA_ARCHITECTURES 75)
 
 #target_compile_options(fluid PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: -m64 --std=c++11>)
 #target_compile_options(fluid PRIVATE "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-gencode arch=compute_75,code=sm_75>")
