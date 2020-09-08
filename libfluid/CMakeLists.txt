@@ -8,6 +8,8 @@ include_directories(include ../common/include $ENV{CUDA_SAMPLES_PATH}/Common)
 # Uncomment the line below to get verbose compilation information
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
+find_package(CUDA)
+
 add_library(fluid SHARED
 cudasrc/fluidintegrator.cu
 cudasrc/fluidintegrator.cuh
