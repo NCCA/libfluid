@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 # Name of the project with Language
-project(test LANGUAGES CXX)
+project(fluidtest LANGUAGES CXX)
 
 # We need to find the CUDA package which will define variables for includes and libs.
 find_package(CUDA)
@@ -14,10 +14,10 @@ include_directories(BEFORE ../common/include ../libfluid/include ${CUDA_INCLUDE_
 
 # build the executable
 add_executable(
-    test
+    fluidtest
     src/main.cpp
     src/myfluidsystem.cpp
     src/myfluidsystem.h
 )
 
-target_link_libraries(test -L${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CUDA_LIBRARIES} ${CUDA_curand_LIBRARY} -lfluid)
+target_link_libraries(fluidtest -L${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CUDA_LIBRARIES} ${CUDA_curand_LIBRARY} -lfluid)

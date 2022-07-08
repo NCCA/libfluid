@@ -116,13 +116,9 @@ int main(int argc, char *argv[])
         float dt = timestepArg.getValue();
         uint substeps = substepArg.getValue();
 
-        // Dump the first frame
-        splash.exportToData(points, colour, velocity);
-        dumpToGeo(fileArg.getValue(), points, colour, velocity, 0);
-
-        for (uint i = 1; i < numstepArg.getValue(); ++i)
+        for (uint i = 1; i <= numstepArg.getValue(); ++i)
         {
-            std::cout << "---Step " << i << ", Timestep " << dt * float(i + 1) << "\n";
+            std::cout << "---Step " << i << ", Timestep " << dt * float(i) << "\n";
             splash.advance(dt, substeps);
             splash.exportToData(points, colour, velocity);
             dumpToGeo(fileArg.getValue(), points, colour, velocity, i);

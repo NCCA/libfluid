@@ -51,8 +51,8 @@ void FluidSystem::clear()
     m_Pressure.clear();
 }
 
-void FluidSystem::createFluidBlock(const uint & firstPtIdx,
-                                   const uint & numPoints,
+void FluidSystem::createFluidBlock(const uint &firstPtIdx,
+                                   const uint &numPoints,
                                    const float &min_x, const float &min_y, const float &min_z,
                                    const float &max_x, const float &max_y, const float &max_z)
 {
@@ -81,7 +81,7 @@ void FluidSystem::createFluidBlock(const uint & firstPtIdx,
     // Now we need to correct the particle radius. This is done by dividing the volume in each dimension by the
     // approximate diameter to get the "resolution" in that dimension. This is rounded up to get the upper bound partRes.
     float3 tmp = diff / approxPartDiameter;
-    //float3 partRes = make_float3(ceilf(tmp.x), ceilf(tmp.y), ceilf(tmp.z));
+    // float3 partRes = make_float3(ceilf(tmp.x), ceilf(tmp.y), ceilf(tmp.z));
     float3 partRes = tmp + make_float3(0.5f);
 
     // The upper bound is then used to determine the radius in each case, the maximum of which defines the particle diameter
@@ -128,10 +128,10 @@ void FluidSystem::setup(const uint &_numPoints, const uint &_res)
     m_params->setVDamp(0.5f);
 
     // Create a default slab of fluid for fun and profit
-    createFluidBlock(0,              //firstPtIdx,
-                     _numPoints,     //numPoints,
-                     0.1, 0.1, 0.1,  //minCorner,
-                     0.9, 0.9, 0.9); //maxCorner)
+    createFluidBlock(0,              // firstPtIdx,
+                     _numPoints,     // numPoints,
+                     0.1, 0.1, 0.1,  // minCorner,
+                     0.9, 0.9, 0.9); // maxCorner)
 }
 
 /**
@@ -176,7 +176,7 @@ void FluidSystem::setupFromData(const std::vector<float3> &_points,
     thrust::copy(_velocity.begin(), _velocity.end(), m_Velocity.begin());
 }
 
-/** 
+/**
  * Resize all of the vectors to initialise this class. Note that the rest density is currently unknown:
  * unless you want the simulation to explode you might want to set the rest density using the initRestDensity()
  * function, which determines the mean density of the current configuration.
@@ -319,16 +319,19 @@ void FluidSystem::advance(const float &full_dt, const uint &substeps)
             CellOcc_ptr,       // The cell occupancy for each cell, uint, size numCells
             ScatterAddress_ptr // The scatter addresses for the start of each cell, uint, size numCells
         );
-        cudaThreadSynchronize();
+        // cudaThreadSynchronize();
+        cudaDeviceSynchronize();
 
         // Determine the surface normals (used for lots of things, including surface tension and adhesion)
         computeNormals<<<gridSize, blockSize>>>(
-            Normals_ptr,         //float3 *normals
-            Density_ptr,         //const float *density
-            Points_ptr,          //const float3 *points
-            CellOcc_ptr,         //const uint *cellOcc
-            ScatterAddress_ptr); //const uint *scatterAddress
-        cudaThreadSynchronize();
+            Normals_ptr,         // float3 *normals
+            Density_ptr,         // const float *density
+            Points_ptr,          // const float3 *points
+            CellOcc_ptr,         // const uint *cellOcc
+            ScatterAddress_ptr); // const uint *scatterAddress
+
+        // cudaThreadSynchronize();
+        cudaDeviceSynchronize();
 
         // Calculate the pressure, surface tension, adhesion and viscosity forces in a single step
         computeAllForces<<<gridSize, blockSize>>>(
@@ -344,7 +347,8 @@ void FluidSystem::advance(const float &full_dt, const uint &substeps)
             Velocity_ptr,
             CellOcc_ptr,
             ScatterAddress_ptr);
-        cudaThreadSynchronize();
+        // cudaThreadSynchronize();
+        cudaDeviceSynchronize();
 
         // Perform the integration using our leapfrog integrator
         LeapfrogIntegratorOperator leapfrog;
@@ -373,7 +377,9 @@ void FluidSystem::advance(const float &full_dt, const uint &substeps)
             Points_ptr,
             CellOcc_ptr,
             ScatterAddress_ptr);
-        cudaThreadSynchronize();
+
+        // cudaThreadSynchronize();
+        cudaDeviceSynchronize();
     }
 }
 
