@@ -7,10 +7,10 @@ project(test LANGUAGES CXX)
 find_package(CUDA)
 
 # Build with Cxx11
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 # Set the include directories
-include_directories(../common/include ../libfluid/include ${CUDA_INCLUDE_DIRS})
+include_directories(BEFORE ../common/include ../libfluid/include ${CUDA_INCLUDE_DIRS} ../deps/tclap/include)
 
 # build the executable
 add_executable(
@@ -21,4 +21,3 @@ add_executable(
 )
 
 target_link_libraries(test -L${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CUDA_LIBRARIES} ${CUDA_curand_LIBRARY} -lfluid)
-
