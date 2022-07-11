@@ -1,6 +1,8 @@
 # libfluid
 An implementation of weakly compressible SPH in CUDA.
 
+![Screenshot](screenshot.png)
+
 Requirements:
 - CUDA Samples. Get them using the following:
   git clone https://github.com/NVIDIA/cuda-samples.git
