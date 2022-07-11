@@ -1,8 +1,9 @@
 # libfluid
 An implementation of weakly compressible SPH in CUDA. Solves 1m particles at 77 FPS on a 2080 RTX.
 
-![Screenshot](screenshot.png)
-Screenshot rendered in Houdini.
+|![Screenshot](screenshot.png)|
+|:--:|
+|<b>Screenshot from libfluid with 100k particles, rendered in Houdini.</b>|
 
 Requirements:
 - CUDA Samples. Get them using the following:
