@@ -27,6 +27,10 @@ __device__ uint3 grid_from_cell(const uint cell);
 __device__ float sqrdist(const float3 &A, const float3 &B);
 __device__ float dist(const float3 &A, const float3 &B);
 
+/**
+ * @brief An operator (functor) to calculate a colour value from a density.
+ *
+ */
 struct DensityColourOperator
 {
     typedef thrust::tuple<

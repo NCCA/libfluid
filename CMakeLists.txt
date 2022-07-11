@@ -10,6 +10,14 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+# Find out our CMAKE_CUDA_ARCHITECTURES
+if (NOT(CMAKE_CUDA_ARCHITECTURES))
+    set(SCRIPT_FINDCUDAARCH "${PROJECT_SOURCE_DIR}/findCudaArch.sh")
+    execute_process(COMMAND ${SCRIPT_FINDCUDAARCH} OUTPUT_VARIABLE CMAKE_CUDA_ARCHITECTURES)
+    message("-- No CMAKE_CUDA_ARCHITECTURE set. Luckily findCudaArch.sh returns ${CMAKE_CUDA_ARCHITECTURES} so we'll use that.")
+endif()
+
+
 # Build the child projects.
 add_subdirectory(libfluid)
 add_subdirectory(test)

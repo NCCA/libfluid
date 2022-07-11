@@ -13,111 +13,116 @@ class FluidParams;
 /**
  *
  */
-class FluidSystem {
-  public:
-    typedef enum {
-      STATIC=1,
-      DYNAMIC=2
-    } ParticleState;
+class FluidSystem
+{
+public:
+  typedef enum
+  {
+    STATIC = 1,
+    DYNAMIC = 2
+  } ParticleState;
 
-    /// Construct an empty fluid system
-    FluidSystem();
+  /// Construct an empty fluid system
+  FluidSystem();
 
-    /// Destruct our fluid system
-    virtual ~FluidSystem();
+  /// Destruct our fluid system
+  virtual ~FluidSystem();
 
-    /// Initialise a relatively standard dambreak simulation
-    virtual void setup(const uint &_numPoints, const uint &_res);
+  /// Initialise a relatively standard dambreak simulation
+  virtual void setup(const uint &_numPoints, const uint &_res);
 
-    /// Initialise from data generated externally
-    void setupFromData(const std::vector<float3>& /*points*/,
-                       const std::vector<float3>& /*velocity*/,
-                       const uint &_res = 32);
+  /// Initialise from data generated externally
+  void setupFromData(const std::vector<float3> & /*points*/,
+                     const std::vector<float3> & /*velocity*/,
+                     const uint &_res = 32);
 
-    /// Dump the data from the current frame to an output vector
-    void exportToData(std::vector<float3>& /*points*/,
-                      std::vector<float3>& /*colour*/,
-                      std::vector<float3>& /*velocity*/);
+  /// Dump the data from the current frame to an output vector
+  void exportToData(std::vector<float3> & /*points*/,
+                    std::vector<float3> & /*colour*/,
+                    std::vector<float3> & /*velocity*/);
 
-    /// Progress the simulation
-    void advance(const float& /*dt*/ = DEFAULT_TIMESTEP, const uint & /*substeps*/ = 10);
+  /// Retrieve the current particle scale
+  float getPscale() const;
 
-    /// Set the rest density (for something other than water, which is 998 kg/m^3)
-    void setRestDensity(const float& _restDensity);
+  /// Progress the simulation
+  void advance(const float & /*dt*/ = DEFAULT_TIMESTEP, const uint & /*substeps*/ = 10);
 
-    /// Set the size of the particles (radius)
-    void setParticleSize(const float& _particleSize);
+  /// Set the rest density (for something other than water, which is 998 kg/m^3)
+  void setRestDensity(const float &_restDensity);
 
-    /// This has been described as a stiffness term for pressure. Fluidsv3 uses 100, so do I.
-    void setGasConstant(const float& _gasConstant);
+  /// Set the size of the particles (radius)
+  void setParticleSize(const float &_particleSize);
 
-    /// Set the velocity and acceleration limits (fiddly)
-    void setLimits(const float& _velLimit, const float& _accLimit);
+  /// This has been described as a stiffness term for pressure. Fluidsv3 uses 100, so do I.
+  void setGasConstant(const float &_gasConstant);
 
-    /// Set the level of velocity smoothing due to the XSPH method. Typically 0.5 works.
-    void setXSPHScale(const float& _xsphScale);
+  /// Set the velocity and acceleration limits (fiddly)
+  void setLimits(const float &_velLimit, const float &_accLimit);
 
-    /// Set the coefficient for surface tension. Somewhere between 0 and 1 would be a good choice.
-    void setSurfaceTension(const float &_surfaceTension);    
+  /// Set the level of velocity smoothing due to the XSPH method. Typically 0.5 works.
+  void setXSPHScale(const float &_xsphScale);
 
-    /// Set the coefficient for viscocity. Somewhere between 0 and 1 would be a good choice.
-    void setViscosity(const float &_viscosity);
+  /// Set the coefficient for surface tension. Somewhere between 0 and 1 would be a good choice.
+  void setSurfaceTension(const float &_surfaceTension);
 
-    /// Set the coefficient for adhesion forces. Somewhere between 0 and 1 would be a good choice.
-    void setAdhesion(const float &_adhesion);
+  /// Set the coefficient for viscocity. Somewhere between 0 and 1 would be a good choice.
+  void setViscosity(const float &_viscosity);
 
-    /// Set how bouncy the fluid will be when it hits a boundary. Somewhere between 0 and 1 would be a good choice.
-    void setVDamp(const float &_vdamp);
+  /// Set the coefficient for adhesion forces. Somewhere between 0 and 1 would be a good choice.
+  void setAdhesion(const float &_adhesion);
 
-    /// A coefficient used for determining the density. Ranges from 1 (Muller) to 7 (Monaghan). No performance improvements for choosing 1!
-    void setGamma(const float& _gamma);
+  /// Set how bouncy the fluid will be when it hits a boundary. Somewhere between 0 and 1 would be a good choice.
+  void setVDamp(const float &_vdamp);
 
-    /// Set the particle mass. This is the same for all particles in this implementation. Should be based on initial density and volume.
-    void setMass(const float& _mass);
+  /// A coefficient used for determining the density. Ranges from 1 (Muller) to 7 (Monaghan). No performance improvements for choosing 1!
+  void setGamma(const float &_gamma);
 
-  protected:
-    /// Keep track of whether the simulation is ready to start
-    bool m_isInit;
+  /// Set the particle mass. This is the same for all particles in this implementation. Should be based on initial density and volume.
+  void setMass(const float &_mass);
 
-    /// Perform the initialisation of this class by setting up all the memory for advance()
-    void init(const uint &_numPoints, const uint &_res);
+protected:
+  /// Keep track of whether the simulation is ready to start
+  bool m_isInit;
 
-    /// Clear away all the vector data
-    void clear();
+  /// Perform the initialisation of this class by setting up all the memory for advance()
+  void init(const uint &_numPoints, const uint &_res);
 
-    /// The points, velocity and acceleration are stored on the GPU and reused between frames
-    thrust::device_vector<float3> m_Points, m_Normals, m_Velocity, m_Acceleration;
+  /// Clear away all the vector data
+  void clear();
 
-    /// The different forces at work on our particles in the simulation
-    thrust::device_vector<float3> m_PressureForce, m_ViscosityForce, m_TensionForce, m_AdhesionForce;
+  /// The points, velocity and acceleration are stored on the GPU and reused between frames
+  thrust::device_vector<float3> m_Points, m_Normals, m_Velocity, m_Acceleration;
 
-    /// Individual point hash for each point - length numPoints
-    thrust::device_vector<uint> m_Hash;
+  /// The different forces at work on our particles in the simulation
+  thrust::device_vector<float3> m_PressureForce, m_ViscosityForce, m_TensionForce, m_AdhesionForce;
 
-    /// Cell occupancy count for each cell - length numCells = res^3
-    thrust::device_vector<uint> m_CellOcc;
+  /// Individual point hash for each point - length numPoints
+  thrust::device_vector<uint> m_Hash;
 
-    /// Store the scatter addresses to find the start position of all the cells in GPU memory. Size numCells
-    thrust::device_vector<uint> m_ScatterAddress;
+  /// Cell occupancy count for each cell - length numCells = res^3
+  thrust::device_vector<uint> m_CellOcc;
 
-    /// The density computed for each particle. Length numPoints
-    thrust::device_vector<float> m_Density;
+  /// Store the scatter addresses to find the start position of all the cells in GPU memory. Size numCells
+  thrust::device_vector<uint> m_ScatterAddress;
 
-    /// Compute the speed of sound for the viscosity calculation
-    thrust::device_vector<float> m_SoundSpeed;
+  /// The density computed for each particle. Length numPoints
+  thrust::device_vector<float> m_Density;
 
-    /// The pressure computed per particle. Length = numPoints
-    thrust::device_vector<float> m_Pressure;  
+  /// Compute the speed of sound for the viscosity calculation
+  thrust::device_vector<float> m_SoundSpeed;
 
-    /// Construct a block of fluid particles to be used in the simulation
-    void createFluidBlock(const uint & /*firstPtIdx*/, 
-                          const uint &/*numPoints*/, 
-                          const float &min_x, const float &min_y, const float &min_z,
-                          const float &max_x, const float &max_y, const float &max_z);
+  /// The pressure computed per particle. Length = numPoints
+  thrust::device_vector<float> m_Pressure;
 
-  private:
-    /// This object maintains the fluid parameters and copies them to the CUDA constant "params"
-    FluidParams *m_params;
+  /// Construct a block of fluid particles to be used in the simulation
+  void createFluidBlock(const uint & /*firstPtIdx*/,
+                        const uint & /*numPoints*/,
+                        const float &min_x, const float &min_y, const float &min_z,
+                        const float &max_x, const float &max_y, const float &max_z);
+
+private:
+  /// This object maintains the fluid parameters and copies them to the CUDA constant "params"
+  FluidParams *m_params;
 };
 
 #endif // FLUIDSYSTEM_H

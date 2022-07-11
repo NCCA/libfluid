@@ -51,6 +51,18 @@ void FluidSystem::clear()
     m_Pressure.clear();
 }
 
+/**
+ * @brief Create a rectangular "chunk" of fluid particles and add it to the simulation.
+ *
+ * @param firstPtIdx Index of the first point to create
+ * @param numPoints The number of points to create
+ * @param min_x Min and max x/y/z bounds
+ * @param min_y Min and max x/y/z bounds
+ * @param min_z Min and max x/y/z bounds
+ * @param max_x Min and max x/y/z bounds
+ * @param max_y Min and max x/y/z bounds
+ * @param max_z Min and max x/y/z bounds
+ */
 void FluidSystem::createFluidBlock(const uint &firstPtIdx,
                                    const uint &numPoints,
                                    const float &min_x, const float &min_y, const float &min_z,
@@ -247,6 +259,9 @@ void FluidSystem::init(const uint &_numPoints, const uint &_res)
 
     // Set our flag to indicate that we are ready to start simulating
     m_isInit = true;
+
+    // Output the params structure
+    m_params->debugPrint();
 }
 
 /**
@@ -257,6 +272,7 @@ void FluidSystem::init(const uint &_numPoints, const uint &_res)
  */
 void FluidSystem::advance(const float &full_dt, const uint &substeps)
 {
+    // Sanity check to see this fluid simulation is ready to rumble
     if (!m_isInit)
         return;
 
@@ -281,7 +297,6 @@ void FluidSystem::advance(const float &full_dt, const uint &substeps)
     // Set up the parameters and synchronise on the GPU if necessary
     m_params->setDT(part_dt);
     m_params->sync();
-    m_params->debugPrint();
 
     for (dt = part_dt; dt <= full_dt; dt += part_dt)
     {
@@ -308,7 +323,7 @@ void FluidSystem::advance(const float &full_dt, const uint &substeps)
         dim3 gridSize(m_params->getRes(), m_params->getRes(), m_params->getRes());
 
         // Helpful to have this information, as it may affect your grid resolution
-        std::cout << "maxCellOcc=" << maxCellOcc << ", blockSize=" << blockSize << ", gridSize=" << m_params->getRes() << "^3\n";
+        // std::cout << "maxCellOcc=" << maxCellOcc << ", blockSize=" << blockSize << ", gridSize=" << m_params->getRes() << "^3\n";
 
         // Compute the density and pressure in one step
         computeDensity<<<gridSize, blockSize>>>(
@@ -381,6 +396,16 @@ void FluidSystem::advance(const float &full_dt, const uint &substeps)
         // cudaThreadSynchronize();
         cudaDeviceSynchronize();
     }
+}
+
+/**
+ * @brief
+ *
+ * @return float The particle scale, stored in the params structure.
+ */
+float FluidSystem::getPscale() const
+{
+    return m_params->getParticleSize();
 }
 
 /// Set the rest density (for something other than water, which is 998 kg/m^3)

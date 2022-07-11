@@ -4,12 +4,14 @@
 #include <iostream>
 #include <sstream>
 #include <tclap/CmdLine.h>
+#include <chrono>
 
 /// Dump our data from the fluid problem to a file
 void dumpToGeo(const std::string &filebase,
                const std::vector<float3> &points,
                const std::vector<float3> &colour,
                const std::vector<float3> &velocity,
+               const float &pscale,
                const uint cnt)
 {
     char fname[200];
@@ -29,13 +31,15 @@ void dumpToGeo(const std::string &filebase,
     ss << "NPoints " << points.size() << " NPrims 1\n";
     ss << "NPointGroups 0 NPrimGroups 1\n";
     // this is hard coded but could be flexible we have 1 attrib which is Colour
-    ss << "NPointAttrib 2  NVertexAttrib 0 NPrimAttrib 2 NAttrib 0\n";
+    ss << "NPointAttrib 3  NVertexAttrib 0 NPrimAttrib 2 NAttrib 0\n";
     // now write out our point attrib this case Cd for diffuse colour
     ss << "PointAttrib \n";
     // Define the colour attribute - default the colour to white
     ss << "Cd 3 float 1 1 1\n";
     // Define the velocity attribute - default is 0
     ss << "v 3 float 0 0 0\n";
+    // Define the particle size attribute - default is 1
+    ss << "pscale 1 float 1\n";
     // now we write out the particle data in the format
     // x y z 1 (attrib so in this case colour)
     std::vector<float3>::const_iterator pit, cit, vit;
@@ -44,7 +48,10 @@ void dumpToGeo(const std::string &filebase,
         // Write out the point coordinates and a "1" (not sure what this is for)
         ss << (*pit).x << " " << (*pit).y << " " << (*pit).z << " 1 ";
         // Output the attributes (colour then velocity)
-        ss << "(" << (*cit).x << " " << (*cit).y << " " << (*cit).z << " " << (*vit).x << " " << (*vit).y << " " << (*vit).z << ")\n";
+        ss << "("
+           << (*cit).x << " " << (*cit).y << " " << (*cit).z << " "
+           << (*vit).x << " " << (*vit).y << " " << (*vit).z << " "
+           << pscale << ")\n";
     }
 
     // now write out the index values
@@ -116,13 +123,31 @@ int main(int argc, char *argv[])
         float dt = timestepArg.getValue();
         uint substeps = substepArg.getValue();
 
+        // Retrieve the particle size outside of the main loop (it's constant)
+        float pscale = splash.getPscale();
+
+        // Initialise total time
+        double t_tot = 0.0;
+
         for (uint i = 1; i <= numstepArg.getValue(); ++i)
         {
-            std::cout << "---Step " << i << ", Timestep " << dt * float(i) << "\n";
-            splash.advance(dt, substeps);
+            std::cout << "---Step " << i << ", Timestep " << dt * float(i) << ", Substeps " << substeps << " pscale " << pscale << " ";
+
+            // Measure the start time of the time step
+            auto t1 = std::chrono::high_resolution_clock::now();
+            splash.advance(dt, substeps); // advance the simulation
+
+            // Measture the end time
+            auto t2 = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+            std::cout << " step time " << ms_double.count() << "ms----\n";
+            t_tot += ms_double.count(); // Total up the step time
+
+            // Note the time to write data out to file is not considered in the timings
             splash.exportToData(points, colour, velocity);
-            dumpToGeo(fileArg.getValue(), points, colour, velocity, i);
+            dumpToGeo(fileArg.getValue(), points, colour, velocity, pscale, i);
         }
+        std::cout << "TOTAL TIME " << t_tot << "\n";
     }
     catch (TCLAP::ArgException &e)
     {
